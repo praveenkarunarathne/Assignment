@@ -1,5 +1,5 @@
 {
-  "name": "assignment",
+  "name": "lumiere-store",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -9,19 +9,21 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@tailwindcss/vite": "^4.2.1",
-    "lucide-vue-next": "^0.575.0",
+    "@vueuse/core": "^14.2.1",
+    "axios": "^1.15.2",
     "pinia": "^3.0.4",
-    "tailwindcss": "^4.2.1",
-    "vue": "^3.5.25",
-    "vue-router": "^5.0.3"
+    "vue": "^3.5.32",
+    "vue-router": "^4.6.4"
   },
   "devDependencies": {
-    "@types/node": "^24.11.0",
-    "@vitejs/plugin-vue": "^6.0.2",
-    "@vue/tsconfig": "^0.8.1",
-    "typescript": "~5.9.3",
-    "vite": "^7.3.1",
-    "vue-tsc": "^3.1.5"
+    "@types/node": "^24.12.2",
+    "@vitejs/plugin-vue": "^6.0.6",
+    "@vue/tsconfig": "^0.9.1",
+    "autoprefixer": "^10.5.0",
+    "postcss": "^8.5.12",
+    "tailwindcss": "^3.4.19",
+    "typescript": "~6.0.2",
+    "vite": "^8.0.10",
+    "vue-tsc": "^3.2.7"
   }
 }

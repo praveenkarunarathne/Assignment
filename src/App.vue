@@ -1,34 +1,39 @@
 <template>
-  <div class="min-h-screen mesh-gradient transition-colors duration-300">
+  <div class="min-h-screen transition-colors duration-300">
     <NavBar />
-    <main>
+    <PageWrapper>
       <RouterView v-slot="{ Component }">
-        <transition name="page" mode="out-in">
+        <Transition name="page" mode="out-in">
           <component :is="Component" />
-        </transition>
+        </Transition>
       </RouterView>
-    </main>
+    </PageWrapper>
+    <BottomTabBar />
+    <FooterComponent />
+    <Toast />
+    <CartDrawer v-model:open="cartDrawerOpen" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { RouterView } from 'vue-router';
-import NavBar from './components/NavBar.vue';
-</script>
+import { ref, onMounted, provide } from 'vue'
+import { useAuthStore } from '@/stores/authStore'
+import { useTheme } from '@/composables/useTheme'
+import NavBar from '@/components/layout/NavBar.vue'
+import BottomTabBar from '@/components/layout/BottomTabBar.vue'
+import FooterComponent from '@/components/layout/Footer.vue'
+import PageWrapper from '@/components/layout/PageWrapper.vue'
+import Toast from '@/components/ui/Toast.vue'
+import CartDrawer from '@/components/cart/CartDrawer.vue'
 
-<style>
-.page-enter-active {
-  transition: all 0.3s ease-out;
-}
-.page-leave-active {
-  transition: all 0.2s ease-in;
-}
-.page-enter-from {
-  opacity: 0;
-  transform: translateY(12px);
-}
-.page-leave-to {
-  opacity: 0;
-  transform: translateY(-12px);
-}
-</style>
+const auth = useAuthStore()
+const { isDark } = useTheme()
+const cartDrawerOpen = ref(false)
+
+// Provide cart drawer control to children (NavBar needs it)
+provide('openCart', () => (cartDrawerOpen.value = true))
+
+onMounted(() => {
+  auth.restoreSession()
+})
+</script>

@@ -1,59 +1,50 @@
-import type { ProductsResponse, Product, AuthResponse } from '../types';
+import axios from 'axios'
+import type {
+  Product,
+  ProductsResponse,
+  Category,
+  AuthResponse,
+  LoginCredentials,
+} from '@/types'
 
-const API_BASE_URL = 'https://dummyjson.com';
+const BASE_URL = 'https://dummyjson.com'
 
-export const fetchProducts = async (
-    query = '',
-    category = '',
-    limit = 20,
-    skip = 0
-): Promise<ProductsResponse> => {
-    let url = `${API_BASE_URL}/products`;
+const http = axios.create({
+  baseURL: BASE_URL,
+  headers: { 'Content-Type': 'application/json' },
+})
 
-    if (category && category !== 'all') {
-        url = `${API_BASE_URL}/products/category/${category}`;
-    } else if (query) {
-        url = `${API_BASE_URL}/products/search?q=${encodeURIComponent(query)}`;
-    } else {
-        url = `${url}?limit=${limit}&skip=${skip}`;
-    }
+// Inject auth token if present
+http.interceptors.request.use((config) => {
+  const token = localStorage.getItem('auth_token')
+  if (token) config.headers.Authorization = `Bearer ${token}`
+  return config
+})
 
-    // If query & category are both provided, dummyjson doesn't natively combine them
-    // perfectly via endpoint, so category wins and we'll do client side or basic search.
-    // We'll stick to basic endpoints here.
+// ── Products ───────────────────────────────────────────────────────────────
 
-    const res = await fetch(url);
-    if (!res.ok) throw new Error('Failed to fetch products');
-    return res.json();
-};
+export const fetchProducts = (limit = 30, skip = 0): Promise<ProductsResponse> =>
+  http.get<ProductsResponse>(`/products?limit=${limit}&skip=${skip}&select=id,title,price,discountPercentage,rating,stock,brand,category,thumbnail,tags`)
+    .then((r) => r.data)
 
-export const fetchProductById = async (id: number | string): Promise<Product> => {
-    const res = await fetch(`${API_BASE_URL}/products/${id}`);
-    if (!res.ok) throw new Error('Failed to fetch product');
-    return res.json();
-};
+export const fetchProductById = (id: number): Promise<Product> =>
+  http.get<Product>(`/products/${id}`).then((r) => r.data)
 
-export const fetchCategories = async (): Promise<{ slug: string, name: string, url: string }[]> => {
-    const res = await fetch(`${API_BASE_URL}/products/categories`);
-    if (!res.ok) throw new Error('Failed to fetch categories');
-    return res.json();
-};
+export const searchProducts = (query: string): Promise<ProductsResponse> =>
+  http.get<ProductsResponse>(`/products/search?q=${encodeURIComponent(query)}`)
+    .then((r) => r.data)
 
-export const login = async (username: string, password: string): Promise<AuthResponse> => {
-    const res = await fetch(`${API_BASE_URL}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            username,
-            password,
-            expiresInMins: 60 * 24, // 1 day
-        }),
-    });
+export const fetchProductsByCategory = (category: string): Promise<ProductsResponse> =>
+  http.get<ProductsResponse>(`/products/category/${encodeURIComponent(category)}`)
+    .then((r) => r.data)
 
-    if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Login failed');
-    }
+export const fetchCategories = (): Promise<Category[]> =>
+  http.get<Category[]>('/products/categories').then((r) => r.data)
 
-    return res.json();
-};
+// ── Auth ───────────────────────────────────────────────────────────────────
+
+export const login = (credentials: LoginCredentials): Promise<AuthResponse> =>
+  http.post<AuthResponse>('/auth/login', credentials).then((r) => r.data)
+
+export const fetchCurrentUser = (): Promise<AuthResponse> =>
+  http.get<AuthResponse>('/auth/me').then((r) => r.data)

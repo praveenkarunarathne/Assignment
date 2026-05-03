@@ -1,118 +1,129 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/authStore'
+import { useToast } from '@/composables/useToast'
+
+const router = useRouter()
+const auth = useAuthStore()
+const toast = useToast()
+
+const username = ref('')
+const password = ref('')
+const showPassword = ref(false)
+
+async function handleLogin() {
+  if (!username.value || !password.value) return
+  const success = await auth.signIn({
+    username: username.value,
+    password: password.value,
+  })
+  if (success) {
+    toast.success(`Welcome back, ${auth.user?.firstName}!`)
+    router.push('/')
+  }
+}
+</script>
+
 <template>
-  <div class="min-h-[calc(100vh-4rem)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative">
-    <!-- Subtle background shapes -->
-    <div class="absolute top-20 left-10 w-72 h-72 bg-primary-500/5 rounded-full blur-3xl"></div>
-    <div class="absolute bottom-20 right-10 w-72 h-72 bg-accent-400/5 rounded-full blur-3xl"></div>
-
-    <div class="relative max-w-md w-full">
-      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-8 sm:p-10">
-        <!-- Icon -->
-        <div class="flex justify-center mb-6">
-          <div class="bg-primary-600 p-3.5 rounded-xl">
-            <Lock class="h-7 w-7 text-white" />
-          </div>
-        </div>
-
-        <h2 class="text-center text-2xl font-bold text-gray-900 dark:text-white mb-1">
-          Welcome Back
+  <div class="min-h-[80vh] flex items-center justify-center px-4">
+    <div class="glass-card rounded-4xl p-8 md:p-10 w-full max-w-md shadow-card-hover animate-scale-in">
+      <!-- Logo -->
+      <div class="text-center mb-8">
+        <h1 class="font-display italic text-3xl font-bold text-accent mb-2">Lumière</h1>
+        <h2 class="font-display text-2xl font-bold text-ink-primary dark:text-chalk-primary">
+          Welcome back
         </h2>
-        <p class="text-center text-sm text-gray-500 dark:text-gray-400 mb-8">
-          Sign in to your account
+        <p class="text-ink-secondary dark:text-chalk-secondary text-sm font-body mt-2">
+          Sign in to your Lumière account
         </p>
-        
-        <form class="space-y-5" @submit.prevent="handleLogin">
-          <div>
-            <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Username</label>
-            <div class="relative">
-              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                <UserIcon class="h-5 w-5 text-gray-400" />
-              </div>
-              <input 
-                id="username" 
-                type="text" 
-                v-model="username" 
-                required 
-                class="block w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all text-sm" 
-                placeholder="e.g., emilys" 
-              />
-            </div>
-          </div>
-
-          <div>
-            <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Password</label>
-            <div class="relative">
-              <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                <KeyRound class="h-5 w-5 text-gray-400" />
-              </div>
-              <input 
-                id="password" 
-                type="password" 
-                v-model="password" 
-                required 
-                class="block w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all text-sm" 
-                placeholder="e.g., emilyspass" 
-              />
-            </div>
-          </div>
-
-          <!-- Error -->
-          <div v-if="error" class="flex items-center gap-2 text-rose-600 text-sm bg-rose-50 dark:bg-rose-900/20 py-3 px-4 rounded-lg border border-rose-200 dark:border-rose-800/30">
-            <AlertCircle class="w-4 h-4 flex-shrink-0" />
-            {{ error }}
-          </div>
-
-          <button 
-            type="submit" 
-            :disabled="loading"
-            class="w-full flex justify-center py-3 px-4 text-sm font-semibold rounded-lg text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-60 disabled:cursor-not-allowed transition-colors shadow-sm"
-          >
-            <span v-if="loading" class="flex items-center gap-2">
-              <Loader2 class="w-4 h-4 animate-spin" />
-              Signing in...
-            </span>
-            <span v-else>Sign in</span>
-          </button>
-        </form>
-
-        <div class="mt-6 pt-6 border-t border-gray-100 dark:border-gray-700">
-          <p class="text-xs text-center text-gray-400 dark:text-gray-500">
-            Demo credentials: 
-            <code class="px-1 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded text-xs font-mono">emilys</code> / 
-            <code class="px-1 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded text-xs font-mono">emilyspass</code>
-          </p>
-        </div>
       </div>
+
+      <!-- Form -->
+      <div class="space-y-4" @keyup.enter="handleLogin">
+        <!-- Username -->
+        <div>
+          <label class="block text-sm font-body font-medium text-ink-primary dark:text-chalk-primary mb-1.5">
+            Username
+          </label>
+          <input
+            id="login-username"
+            v-model="username"
+            type="text"
+            placeholder="Enter your username"
+            class="input-field"
+            autocomplete="username"
+          />
+        </div>
+
+        <!-- Password -->
+        <div>
+          <label class="block text-sm font-body font-medium text-ink-primary dark:text-chalk-primary mb-1.5">
+            Password
+          </label>
+          <div class="relative">
+            <input
+              id="login-password"
+              v-model="password"
+              :type="showPassword ? 'text' : 'password'"
+              placeholder="Enter your password"
+              class="input-field pr-12"
+              autocomplete="current-password"
+            />
+            <button
+              type="button"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-ink-muted dark:text-chalk-muted hover:text-ink-primary dark:hover:text-chalk-primary transition-colors"
+              @click="showPassword = !showPassword"
+              aria-label="Toggle password visibility"
+            >
+              <svg v-if="!showPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Error message -->
+        <p v-if="auth.error" class="text-red-500 text-sm font-body animate-fade-in">
+          {{ auth.error }}
+        </p>
+
+        <!-- Sign In button -->
+        <button
+          id="login-submit"
+          class="w-full btn-primary py-4 text-base flex items-center justify-center gap-2"
+          :disabled="auth.loading || !username || !password"
+          @click="handleLogin"
+        >
+          <svg
+            v-if="auth.loading"
+            class="animate-spin w-5 h-5"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+          </svg>
+          {{ auth.loading ? 'Signing in...' : 'Sign In' }}
+        </button>
+      </div>
+
+      <!-- Hint -->
+      <div class="mt-6 p-4 bg-light-elevated dark:bg-dark-elevated rounded-2xl">
+        <p class="text-xs text-ink-muted dark:text-chalk-muted font-mono text-center">
+          Try: username: <span class="text-accent font-semibold">emilys</span> / password: <span class="text-accent font-semibold">emilyspass</span>
+        </p>
+      </div>
+
+      <!-- Register link -->
+      <p class="text-center text-sm text-ink-muted dark:text-chalk-muted mt-6 font-body">
+        Don't have an account?
+        <span class="text-ink-secondary dark:text-chalk-secondary cursor-default">Register</span>
+      </p>
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { useAuthStore } from '../stores/auth';
-import { login } from '../services/api';
-import { User as UserIcon, Lock, KeyRound, AlertCircle, Loader2 } from 'lucide-vue-next';
-
-const router = useRouter();
-const authStore = useAuthStore();
-
-const username = ref('emilys');
-const password = ref('emilyspass');
-const loading = ref(false);
-const error = ref<string | null>(null);
-
-const handleLogin = async () => {
-  loading.value = true;
-  error.value = null;
-  
-  try {
-    const authData = await login(username.value, password.value);
-    authStore.setAuth(authData);
-    router.push('/');
-  } catch (err: unknown) {
-    error.value = err instanceof Error ? err.message : 'Invalid credentials. Please try again.';
-  } finally {
-    loading.value = false;
-  }
-};
-</script>

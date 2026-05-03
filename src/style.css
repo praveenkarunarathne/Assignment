@@ -1,170 +1,126 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
 
-@theme {
-  /* Deep Indigo — Trust & Professionalism */
-  --color-primary-50: #eef2ff;
-  --color-primary-100: #e0e7ff;
-  --color-primary-200: #c7d2fe;
-  --color-primary-300: #a5b4fc;
-  --color-primary-400: #818cf8;
-  --color-primary-500: #6366f1;
-  --color-primary-600: #4f46e5;
-  --color-primary-700: #4338ca;
-  --color-primary-800: #3730a3;
-  --color-primary-900: #312e81;
-
-  /* Warm Amber — CTAs & Highlights */
-  --color-accent-50: #fffbeb;
-  --color-accent-100: #fef3c7;
-  --color-accent-200: #fde68a;
-  --color-accent-300: #fcd34d;
-  --color-accent-400: #fbbf24;
-  --color-accent-500: #f59e0b;
-  --color-accent-600: #d97706;
-  --color-accent-700: #b45309;
-
-  /* Emerald — Success & Stock */
-  --color-emerald-400: #34d399;
-  --color-emerald-500: #10b981;
-  --color-emerald-600: #059669;
-
-  /* Rose — Errors & Sale Badges */
-  --color-rose-400: #fb7185;
-  --color-rose-500: #f43f5e;
-  --color-rose-600: #e11d48;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @layer base {
-  :root {
-    --background: #fafbfd;
-    --foreground: #1e293b;
-    --card-bg: #ffffff;
-    --card-border: #e2e8f0;
-    --muted: #94a3b8;
-  }
-
-  .dark {
-    --background: #0f1729;
-    --foreground: #f1f5f9;
-    --card-bg: #1e293b;
-    --card-border: #334155;
-    --muted: #64748b;
-  }
-
-  * {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  html {
+    scroll-behavior: smooth;
   }
 
   body {
-    background-color: var(--background);
-    color: var(--foreground);
-    @apply antialiased transition-colors duration-300;
+    @apply font-body bg-light-bg text-ink-primary dark:bg-dark-bg dark:text-chalk-primary;
+    @apply transition-colors duration-300;
+    font-feature-settings: 'kern' 1, 'liga' 1;
+    -webkit-font-smoothing: antialiased;
   }
 
-  /* Professional gradient — indigo to slate-blue */
-  .gradient-bg {
-    background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+  * {
+    @apply border-light-border dark:border-dark-border;
   }
 
-  /* Gradient text — indigo to amber for headings */
-  .gradient-text {
-    background: linear-gradient(135deg, #4f46e5, #6366f1);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+  ::selection {
+    @apply bg-accent text-white;
   }
 
-  /* Glassmorphism */
-  .glass {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-  }
-
-  .dark .glass {
-    background: rgba(15, 23, 42, 0.85);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-  }
-
-  /* Subtle professional mesh background */
-  .mesh-gradient {
-    background-color: #fafbfd;
-    background-image:
-      radial-gradient(at 20% 10%, rgba(79, 70, 229, 0.06) 0px, transparent 50%),
-      radial-gradient(at 80% 0%, rgba(99, 102, 241, 0.05) 0px, transparent 50%),
-      radial-gradient(at 0% 80%, rgba(79, 70, 229, 0.04) 0px, transparent 50%),
-      radial-gradient(at 90% 90%, rgba(245, 158, 11, 0.03) 0px, transparent 50%);
-  }
-
-  .dark .mesh-gradient {
-    background-color: #0f1729;
-    background-image:
-      radial-gradient(at 20% 10%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
-      radial-gradient(at 80% 0%, rgba(79, 70, 229, 0.08) 0px, transparent 50%),
-      radial-gradient(at 0% 80%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
-      radial-gradient(at 90% 90%, rgba(245, 158, 11, 0.04) 0px, transparent 50%);
+  :focus-visible {
+    @apply outline-2 outline-accent outline-offset-2;
   }
 }
 
-/* Animations */
-@keyframes shimmer {
-  0% {
-    background-position: -200% 0;
+@layer components {
+  /* Skeleton shimmer effect */
+  .skeleton {
+    @apply bg-light-elevated dark:bg-dark-elevated rounded-xl overflow-hidden relative;
+    background: linear-gradient(
+      90deg,
+      theme('colors.light.elevated') 25%,
+      theme('colors.light.bg') 50%,
+      theme('colors.light.elevated') 75%
+    );
+    background-size: 1000px 100%;
+    animation: shimmer 1.8s infinite;
   }
 
-  100% {
-    background-position: 200% 0;
+  .dark .skeleton {
+    background: linear-gradient(
+      90deg,
+      theme('colors.dark.elevated') 25%,
+      theme('colors.dark.surface') 50%,
+      theme('colors.dark.elevated') 75%
+    );
+    background-size: 1000px 100%;
+  }
+
+  /* Glassmorphism card */
+  .glass-card {
+    @apply backdrop-blur-md bg-white/70 dark:bg-dark-surface/70 border border-light-border dark:border-dark-border;
+  }
+
+  /* Primary button */
+  .btn-primary {
+    @apply bg-accent hover:bg-accent-dark active:scale-95 text-white font-body font-medium
+           px-6 py-3 rounded-2xl transition-all duration-200 shadow-accent
+           hover:shadow-lg focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2;
+  }
+
+  /* Secondary button */
+  .btn-secondary {
+    @apply bg-light-elevated dark:bg-dark-elevated hover:bg-light-border dark:hover:bg-dark-border
+           text-ink-primary dark:text-chalk-primary font-body font-medium
+           px-6 py-3 rounded-2xl transition-all duration-200 active:scale-95;
+  }
+
+  /* Input field */
+  .input-field {
+    @apply w-full bg-light-elevated dark:bg-dark-elevated border border-light-border dark:border-dark-border
+           rounded-2xl px-4 py-3 font-body text-sm text-ink-primary dark:text-chalk-primary
+           placeholder:text-ink-muted dark:placeholder:text-chalk-muted
+           focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent
+           transition-all duration-200;
+  }
+
+  /* Product card */
+  .product-card {
+    @apply bg-light-surface dark:bg-dark-surface rounded-3xl overflow-hidden
+           shadow-card hover:shadow-card-hover transition-all duration-300
+           hover:-translate-y-1 cursor-pointer;
+  }
+
+  /* Badge */
+  .badge {
+    @apply inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-mono font-medium;
+  }
+
+  /* Nav link */
+  .nav-link {
+    @apply text-ink-secondary dark:text-chalk-secondary hover:text-ink-primary dark:hover:text-chalk-primary
+           font-body font-medium text-sm transition-colors duration-150;
+  }
+
+  /* Section heading */
+  .section-title {
+    @apply font-display text-3xl md:text-4xl font-bold text-ink-primary dark:text-chalk-primary leading-tight;
   }
 }
 
-@keyframes gradient-x {
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { @apply bg-transparent; }
+::-webkit-scrollbar-thumb { @apply bg-light-border dark:bg-dark-border rounded-full; }
+::-webkit-scrollbar-thumb:hover { @apply bg-accent/50; }
 
-  0%,
-  100% {
-    background-position: 0% 50%;
-  }
-
-  50% {
-    background-position: 100% 50%;
-  }
+/* Page transition */
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 0.25s ease, transform 0.25s ease;
 }
-
-.animate-shimmer {
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-  background-size: 200% 100%;
-  animation: shimmer 2s infinite;
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
 }
-
-.animate-gradient {
-  background-size: 200% 200%;
-  animation: gradient-x 4s ease infinite;
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #c7d2fe;
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #a5b4fc;
-}
-
-.dark ::-webkit-scrollbar-thumb {
-  background: #4338ca;
-}
-
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: #6366f1;
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
 }

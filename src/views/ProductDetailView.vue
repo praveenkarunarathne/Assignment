@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { fetchProductById } from '@/services/api'
 import { useCartStore } from '@/stores/cartStore'
+import { useAuthStore } from '@/stores/authStore'
 import { useToast } from '@/composables/useToast'
 import StarRating from '@/components/ui/StarRating.vue'
 import Badge from '@/components/ui/Badge.vue'
@@ -43,8 +44,15 @@ const stockLabel = computed(() => {
   return 'Out of Stock'
 })
 
+const auth = useAuthStore()
+
 function addToCart() {
   if (!product.value) return
+  if (!auth.isLoggedIn) {
+    toast.error('Please login to add items to cart')
+    router.push('/login')
+    return
+  }
   for (let i = 0; i < quantity.value; i++) {
     cart.addItem(product.value)
   }

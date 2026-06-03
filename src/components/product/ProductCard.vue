@@ -3,6 +3,8 @@ import { computed } from 'vue'
 import { useCartStore } from '@/stores/cartStore'
 import { useToast } from '@/composables/useToast'
 import StarRating from '@/components/ui/StarRating.vue'
+import { useAuthStore } from '@/stores/authStore'
+import { useRouter } from 'vue-router'
 import type { Product } from '@/types'
 
 const props = defineProps<{
@@ -18,8 +20,16 @@ const discountedPrice = computed(() =>
 
 const inCart = computed(() => cart.isInCart(props.product.id))
 
+const auth = useAuthStore()
+const router = useRouter()
+
 function handleAddToCart(e: Event) {
   e.stopPropagation()
+  if (!auth.isLoggedIn) {
+    toast.error('Please login to add items to cart')
+    router.push('/login')
+    return
+  }
   if (!inCart.value) {
     cart.addItem(props.product)
     toast.success(`${props.product.title} added to cart!`)

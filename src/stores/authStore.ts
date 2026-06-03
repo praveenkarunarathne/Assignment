@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { login, fetchCurrentUser } from '@/services/api'
 import type { AuthResponse, LoginCredentials } from '@/types'
+import { useCartStore } from '@/stores/cartStore'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<AuthResponse | null>(null)
@@ -16,9 +17,10 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null
     try {
       const data = await login(credentials)
-      token.value = data.token
+      const authToken = (data as any).accessToken || data.token
+      token.value = authToken
       user.value = data
-      localStorage.setItem('auth_token', data.token)
+      localStorage.setItem('auth_token', authToken)
       localStorage.setItem('auth_user', JSON.stringify(data))
       return true
     } catch {
@@ -50,6 +52,9 @@ export const useAuthStore = defineStore('auth', () => {
     token.value = null
     localStorage.removeItem('auth_token')
     localStorage.removeItem('auth_user')
+    
+    const cartStore = useCartStore()
+    cartStore.clearCart()
   }
 
   return { user, token, loading, error, isLoggedIn, signIn, signOut, restoreSession }

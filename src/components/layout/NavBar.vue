@@ -31,6 +31,16 @@ function handleSearch() {
     searchQuery.value = ''
   }
 }
+
+import { useToast } from '@/composables/useToast'
+const toast = useToast()
+
+function handleSignOut() {
+  auth.signOut()
+  toast.success('Signed out successfully')
+  router.push('/login')
+  mobileMenuOpen.value = false
+}
 </script>
 
 <template>
@@ -106,7 +116,7 @@ function handleSearch() {
           <button
             v-else
             class="hidden md:flex items-center gap-2 nav-link"
-            @click="auth.signOut()"
+            @click="handleSignOut"
           >
             <img
               :src="auth.user?.image"
@@ -162,7 +172,7 @@ function handleSearch() {
           <router-link to="/products?category=furniture" class="nav-link text-lg" @click="mobileMenuOpen = false">Collections</router-link>
           <router-link to="/cart" class="nav-link text-lg" @click="mobileMenuOpen = false">Cart ({{ cart.totalItems }})</router-link>
           <router-link v-if="!auth.isLoggedIn" to="/login" class="nav-link text-lg" @click="mobileMenuOpen = false">Sign In</router-link>
-          <button v-else class="nav-link text-lg text-left" @click="auth.signOut(); mobileMenuOpen = false">Sign Out</button>
+          <button v-else class="nav-link text-lg text-left" @click="handleSignOut">Sign Out</button>
         </div>
       </div>
     </div>

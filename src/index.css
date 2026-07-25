@@ -1,0 +1,229 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply font-body bg-surface text-txt antialiased font-light;
+    @apply dark:bg-surface-dark dark:text-txt-dark-primary;
+    @apply transition-colors duration-150;
+    
+    /* Hide default cursor on devices that support fine pointing */
+    @media (pointer: fine) {
+      cursor: none !important;
+    }
+  }
+
+  /* Ensure all interactive elements also hide cursor when custom cursor is active */
+  @media (pointer: fine) {
+    a, button, input, select, textarea, [role="button"], [data-cursor] {
+      cursor: none !important;
+    }
+  }
+
+  ::selection {
+    @apply bg-cobalt text-white;
+  }
+
+  :focus-visible {
+    @apply outline-1 outline-cobalt outline-offset-2;
+  }
+}
+
+@layer components {
+  /* Skeleton shimmer */
+  .skeleton {
+    @apply bg-surface-raised dark:bg-surface-dark-raised overflow-hidden relative;
+    background: linear-gradient(
+      90deg,
+      theme('colors.surface.raised') 25%,
+      theme('colors.surface.DEFAULT') 50%,
+      theme('colors.surface.raised') 75%
+    );
+    background-size: 600px 100%;
+    animation: shimmer 1.5s infinite linear;
+  }
+
+  .dark .skeleton {
+    background: linear-gradient(
+      90deg,
+      theme('colors.surface.dark-raised') 25%,
+      theme('colors.surface.dark') 50%,
+      theme('colors.surface.dark-raised') 75%
+    );
+    background-size: 600px 100%;
+  }
+
+  /* Primary button — flat black, sharp */
+  .btn-primary {
+    @apply bg-cobalt hover:bg-cobalt-light active:scale-[0.995] text-white font-body font-normal
+           tracking-[0.1em] uppercase text-xs
+           px-8 py-4 transition-all duration-200
+           focus-visible:ring-1 focus-visible:ring-cobalt focus-visible:ring-offset-2;
+  }
+
+  /* Secondary / ghost button */
+  .btn-secondary {
+    @apply bg-transparent
+           text-txt dark:text-txt-dark-primary font-body font-normal
+           tracking-[0.1em] uppercase text-xs
+           px-8 py-4 transition-all duration-200 active:scale-[0.995]
+           border border-edge dark:border-edge-dark
+           hover:border-txt dark:hover:border-txt-dark-primary;
+  }
+
+  /* Input field — underline only, editorial */
+  .input-field {
+    @apply w-full bg-transparent
+           border-0 border-b border-edge dark:border-edge-dark
+           rounded-none px-0 py-3 font-body text-sm
+           text-txt dark:text-txt-dark-primary font-light
+           placeholder:text-txt-muted dark:placeholder:text-txt-dark-muted
+           focus:outline-none focus:border-txt dark:focus:border-txt-dark-primary focus:ring-0
+           transition-all duration-200;
+  }
+
+  /* Select field — needs some padding for the dropdown arrow */
+  select.input-field {
+    @apply px-2 pr-8;
+  }
+
+  /* Product card */
+  .product-card {
+    @apply bg-transparent
+           overflow-hidden
+           transition-all duration-300;
+  }
+
+  /* Badge — sharp, minimal */
+  .badge {
+    @apply inline-flex items-center gap-1 px-2.5 py-1 text-xs font-body font-normal tracking-[0.1em] uppercase;
+  }
+
+  /* Nav link */
+  .nav-link {
+    @apply text-txt-secondary dark:text-txt-dark-secondary
+           hover:text-txt dark:hover:text-txt-dark-primary
+           font-body font-light text-sm tracking-wide transition-colors duration-200;
+  }
+
+  /* Section heading */
+  .section-title {
+    @apply font-display text-3xl md:text-4xl font-light text-txt dark:text-txt-dark-primary leading-tight tracking-tight;
+  }
+
+  /* Fluid Editorial Typography */
+  .text-display-hero {
+    font-size: clamp(3rem, 8vw, 9rem);
+    line-height: 0.85;
+    letter-spacing: -0.02em;
+  }
+  
+  .text-micro {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  /* Glassmorphism — removed for luxury flatness */
+  .glass-card {
+    @apply bg-surface dark:bg-surface-dark;
+  }
+
+  /* Awwwards Micro-interactions */
+  .mask-container {
+    overflow: hidden;
+    display: inline-block;
+  }
+
+  .animate-mask-up {
+    display: inline-block;
+    transform: translateY(110%);
+    animation: maskUp 1.2s cubic-bezier(0.76, 0, 0.24, 1) forwards;
+  }
+
+  @keyframes maskUp {
+    0% {
+      transform: translateY(110%);
+    }
+    100% {
+      transform: translateY(0);
+    }
+  }
+
+  /* Custom Cursor Styles */
+  @media (pointer: fine) {
+    .custom-cursor {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 12px;
+      height: 12px;
+      background-color: white; /* mix-blend-difference makes this black on white */
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      mix-blend-mode: difference;
+      transition: width 0.3s cubic-bezier(0.19, 1, 0.22, 1), 
+                  height 0.3s cubic-bezier(0.19, 1, 0.22, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .custom-cursor.is-hovering {
+      width: 80px;
+      height: 80px;
+    }
+
+    .custom-cursor-text {
+      color: black;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .custom-cursor.is-hovering .custom-cursor-text {
+      opacity: 1;
+    }
+  }
+  @media (pointer: coarse) {
+    .custom-cursor {
+      display: none !important;
+    }
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { @apply bg-transparent; }
+::-webkit-scrollbar-thumb { @apply bg-edge dark:bg-edge-dark; }
+::-webkit-scrollbar-thumb:hover { @apply bg-txt-muted; }
+
+/* Page transition */
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(4px);
+}
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+/* Toast transition */
+.toast-enter-active { transition: all 0.2s ease-out; }
+.toast-leave-active { transition: all 0.15s ease-in; }
+.toast-enter-from { opacity: 0; transform: translateX(100%); }
+.toast-leave-to { opacity: 0; transform: translateX(100%); }

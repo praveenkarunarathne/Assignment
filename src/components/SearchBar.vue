@@ -35,7 +35,7 @@ function clear() {
 <template>
   <div class="relative">
     <svg
-      class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-muted dark:text-chalk-muted"
+      class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-txt-muted dark:text-txt-dark-muted"
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
@@ -51,7 +51,7 @@ function clear() {
     />
     <button
       v-if="internalValue"
-      class="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center rounded-full hover:bg-light-border dark:hover:bg-dark-border transition-colors text-ink-muted dark:text-chalk-muted"
+      class="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center rounded-full hover:bg-edge dark:hover:bg-edge-dark transition-colors text-txt-muted dark:text-txt-dark-muted"
       @click="clear"
       aria-label="Clear search"
     >

@@ -1,72 +1,85 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   darkMode: 'class',
-  content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
+  content: [
+    "./index.html",
+    "./src/**/*.{vue,js,ts,jsx,tsx}",
+  ],
   theme: {
     extend: {
       colors: {
-        // Dark mode surfaces
-        dark: {
-          bg: '#0F0F0F',
-          surface: '#1A1A1A',
-          elevated: '#242424',
-          border: '#2E2E2E',
+        // Surfaces
+        surface: {
+          DEFAULT: '#FFFFFF',
+          raised: '#F4F4F5',
+          inset: '#FAFAFA',
+          dark: '#121212',
+          'dark-raised': '#1A1A1A',
+          'dark-inset': '#151515',
         },
-        // Light mode surfaces
-        light: {
-          bg: '#F7F4F0',
-          surface: '#FFFFFF',
-          elevated: '#F0EDE8',
-          border: '#E8E4DE',
-        },
-        // Brand accent - warm terracotta
-        accent: {
-          DEFAULT: '#D4704A',
-          light: '#E8896A',
-          dark: '#B85A35',
+        // Borders
+        edge: {
+          DEFAULT: '#E4E4E7',
+          dark: '#2A2A2A',
         },
         // Text
-        ink: {
-          primary: '#1A1A1A',
-          secondary: '#6B6560',
-          muted: '#9E9791',
+        txt: {
+          DEFAULT: '#1A1A1A',
+          secondary: '#71717A',
+          muted: '#A1A1AA',
+          inverse: '#EFEFEF',
+          'dark-primary': '#EFEFEF',
+          'dark-secondary': '#C8C8C8',
+          'dark-muted': '#707070',
         },
-        chalk: {
-          primary: '#F1EDE6',
-          secondary: '#B8B0A8',
-          muted: '#6B6560',
+        // Accent — Charcoal/Black (formerly Cobalt)
+        cobalt: {
+          DEFAULT: '#111111',
+          light: '#2A2A2A',
+          dark: '#000000',
+          muted: '#1111110D', // 5% opacity
         },
+        // Semantic
+        sale: '#EAE1D9', // Muted beige instead of red
+        success: '#111111', // Keeping success messages minimal
       },
       fontFamily: {
-        display: ['"Playfair Display"', 'Georgia', 'serif'],
-        body: ['"DM Sans"', 'sans-serif'],
-        mono: ['"DM Mono"', 'monospace'],
+        display: ['Fraunces', 'Georgia', 'serif'],
+        body: ['Inter', 'system-ui', 'sans-serif'],
+        mono: ['"IBM Plex Mono"', 'monospace'],
       },
       borderRadius: {
-        '2xl': '1rem',
-        '3xl': '1.5rem',
-        '4xl': '2rem',
+        DEFAULT: '2px',
+        sm: '0px',
+        md: '2px',
+        lg: '4px',
+        xl: '4px',
       },
       animation: {
+        'fade-in': 'fadeIn 0.2s ease-out forwards',
         'fade-up': 'fadeUp 0.5s ease forwards',
-        'fade-in': 'fadeIn 0.3s ease forwards',
         'scale-in': 'scaleIn 0.2s ease forwards',
+        'slide-up': 'slideUp 0.25s ease-out forwards',
         'slide-right': 'slideRight 0.3s ease forwards',
         'cart-bounce': 'cartBounce 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97)',
-        shimmer: 'shimmer 1.8s infinite',
+        shimmer: 'shimmer 1.5s infinite linear',
       },
       keyframes: {
-        fadeUp: {
-          '0%': { opacity: '0', transform: 'translateY(16px)' },
-          '100%': { opacity: '1', transform: 'translateY(0)' },
-        },
         fadeIn: {
           '0%': { opacity: '0' },
           '100%': { opacity: '1' },
         },
+        fadeUp: {
+          '0%': { opacity: '0', transform: 'translateY(16px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
         scaleIn: {
           '0%': { opacity: '0', transform: 'scale(0.95)' },
           '100%': { opacity: '1', transform: 'scale(1)' },
+        },
+        slideUp: {
+          '0%': { opacity: '0', transform: 'translateY(8px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
         },
         slideRight: {
           '0%': { transform: 'translateX(-100%)' },
@@ -78,14 +91,15 @@ export default {
           '60%': { transform: 'scale(0.9)' },
         },
         shimmer: {
-          '0%': { backgroundPosition: '-1000px 0' },
-          '100%': { backgroundPosition: '1000px 0' },
+          '0%': { backgroundPosition: '-600px 0' },
+          '100%': { backgroundPosition: '600px 0' },
         },
       },
       boxShadow: {
-        'card': '0 2px 12px rgba(0,0,0,0.08)',
-        'card-hover': '0 8px 32px rgba(0,0,0,0.16)',
-        'accent': '0 4px 20px rgba(212,112,74,0.35)',
+        'card': '0 1px 3px rgba(0,0,0,0.06)',
+        'card-hover': '0 4px 16px rgba(0,0,0,0.1)',
+        'toast': '0 8px 30px rgba(0,0,0,0.12)',
+        'accent': '0 4px 20px rgba(0,85,255,0.35)',
       },
     },
   },

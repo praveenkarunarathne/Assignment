@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import { useTheme } from '@/composables/useTheme'
+import { useDarkModeStore } from '../stores/darkMode'
 
-const { isDark, toggle } = useTheme()
+const darkMode = useDarkModeStore()
 </script>
 
 <template>
   <button
     id="theme-toggle"
-    class="relative w-10 h-10 rounded-xl flex items-center justify-center hover:bg-light-elevated dark:hover:bg-dark-elevated transition-all duration-300"
-    @click="toggle"
-    :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
+    class="relative w-10 h-10 rounded-xl flex items-center justify-center hover:bg-surface-raised dark:hover:bg-surface-dark-raised transition-all duration-300"
+    @click="darkMode.toggle()"
+    :aria-label="darkMode.isDark ? 'Switch to light mode' : 'Switch to dark mode'"
   >
     <!-- Sun -->
     <svg
-      v-if="isDark"
+      v-if="darkMode.isDark"
       class="w-5 h-5 text-amber-400 transition-transform duration-300 rotate-0 hover:rotate-45"
       fill="none"
       stroke="currentColor"
@@ -24,7 +24,7 @@ const { isDark, toggle } = useTheme()
     <!-- Moon -->
     <svg
       v-else
-      class="w-5 h-5 text-ink-secondary transition-transform duration-300 rotate-0 hover:-rotate-12"
+      class="w-5 h-5 text-txt-secondary transition-transform duration-300 rotate-0 hover:-rotate-12"
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"

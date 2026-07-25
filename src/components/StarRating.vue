@@ -12,7 +12,7 @@ const props = defineProps<{
         <!-- Full star -->
         <svg
           v-if="i <= Math.floor(rating)"
-          class="w-4 h-4 text-accent"
+          class="w-4 h-4 text-amber-400"
           fill="currentColor"
           viewBox="0 0 20 20"
         >
@@ -21,7 +21,7 @@ const props = defineProps<{
         <!-- Half star -->
         <svg
           v-else-if="i === Math.floor(rating) + 1 && (rating % 1) >= 0.5"
-          class="w-4 h-4 text-accent"
+          class="w-4 h-4 text-amber-400"
           viewBox="0 0 20 20"
         >
           <defs>
@@ -40,7 +40,7 @@ const props = defineProps<{
         <!-- Empty star -->
         <svg
           v-else
-          class="w-4 h-4 text-light-border dark:text-dark-border"
+          class="w-4 h-4 text-edge dark:text-edge-dark"
           fill="currentColor"
           viewBox="0 0 20 20"
         >
@@ -48,10 +48,10 @@ const props = defineProps<{
         </svg>
       </template>
     </div>
-    <span class="text-sm font-mono text-ink-secondary dark:text-chalk-secondary">
+    <span class="text-sm font-mono text-txt-secondary dark:text-txt-dark-secondary">
       {{ rating.toFixed(1) }}
     </span>
-    <span v-if="count !== undefined" class="text-xs text-ink-muted dark:text-chalk-muted">
+    <span v-if="count !== undefined" class="text-xs text-txt-muted dark:text-txt-dark-muted">
       ({{ count }})
     </span>
   </div>

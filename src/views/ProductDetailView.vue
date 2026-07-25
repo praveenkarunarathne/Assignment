@@ -1,33 +1,51 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { fetchProductById } from '@/services/api'
-import { useCartStore } from '@/stores/cartStore'
-import { useAuthStore } from '@/stores/authStore'
-import { useToast } from '@/composables/useToast'
-import StarRating from '@/components/ui/StarRating.vue'
-import Badge from '@/components/ui/Badge.vue'
-import SkeletonDetail from '@/components/ui/SkeletonDetail.vue'
-import EmptyState from '@/components/ui/EmptyState.vue'
-import type { Product } from '@/types'
+import { useProductsStore } from '../stores/products'
+import { useCartStore } from '../stores/cart'
+import type { Product } from '../types'
+import LoadingSpinner from '../components/LoadingSpinner.vue'
+import ErrorState from '../components/ErrorState.vue'
+import StarRating from '../components/StarRating.vue'
+import Badge from '../components/Badge.vue'
 
 const route = useRoute()
 const router = useRouter()
+const productsStore = useProductsStore()
 const cart = useCartStore()
-const toast = useToast()
 
-const product = ref<Product | null>(null)
+const product = ref<Product | undefined>(undefined)
 const loading = ref(true)
 const error = ref<string | null>(null)
 const selectedImage = ref(0)
 const quantity = ref(1)
+
+const productId = computed(() => Number(route.params.id))
+
+async function loadProduct() {
+  loading.value = true
+  error.value = null
+  await productsStore.fetchAll()
+  const found = productsStore.getProductById(productId.value)
+  if (found) {
+    product.value = found
+    selectedImage.value = 0
+    quantity.value = 1
+  } else {
+    error.value = 'Product not found'
+  }
+  loading.value = false
+}
 
 const discountedPrice = computed(() => {
   if (!product.value) return 0
   return product.value.price * (1 - product.value.discountPercentage / 100)
 })
 
-const inCart = computed(() => product.value ? cart.isInCart(product.value.id) : false)
+const inCart = computed(() => {
+  if (!product.value) return false
+  return cart.getQuantity(product.value.id) > 0
+})
 
 const stockVariant = computed(() => {
   if (!product.value) return 'default'
@@ -44,19 +62,12 @@ const stockLabel = computed(() => {
   return 'Out of Stock'
 })
 
-const auth = useAuthStore()
-
 function addToCart() {
   if (!product.value) return
-  if (!auth.isLoggedIn) {
-    toast.error('Please login to add items to cart')
-    router.push('/login')
-    return
+  const success = cart.addToCart(product.value.id, quantity.value)
+  if (!success) {
+    // Toast handles showing the error, and router pushes to login inside addToCart
   }
-  for (let i = 0; i < quantity.value; i++) {
-    cart.addItem(product.value)
-  }
-  toast.success(`${product.value.title} added to cart!`)
 }
 
 // Rating distribution for reviews
@@ -70,100 +81,74 @@ const ratingDistribution = computed(() => {
   return dist.reverse() // 5 stars first
 })
 
-onMounted(async () => {
-  const id = Number(route.params.id)
-  if (isNaN(id)) {
-    error.value = 'Invalid product ID'
-    loading.value = false
-    return
-  }
-  try {
-    product.value = await fetchProductById(id)
-  } catch {
-    error.value = 'Product not found'
-  } finally {
-    loading.value = false
-  }
-})
+onMounted(loadProduct)
+watch(() => route.params.id, loadProduct)
 </script>
 
 <template>
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Loading -->
-    <SkeletonDetail v-if="loading" />
-
-    <!-- Error -->
-    <EmptyState
+  <div class="min-h-[80vh] pb-24 md:pb-20">
+    <LoadingSpinner v-if="loading" />
+    
+    <ErrorState
       v-else-if="error || !product"
-      title="Product Not Found"
-      description="The product you're looking for doesn't exist or has been removed."
-      action-label="Back to Shop"
-      @action="router.push('/products')"
+      :message="error || 'Product not found'"
+      :on-retry="() => router.push('/')"
+      retry-label="Back to Shop"
     />
 
-    <!-- Product detail -->
-    <template v-else>
+    <div v-else class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 lg:pt-12">
       <!-- Breadcrumb -->
-      <nav class="flex items-center gap-2 text-sm text-ink-muted dark:text-chalk-muted mb-8 font-body">
-        <router-link to="/" class="hover:text-accent transition-colors">Home</router-link>
-        <span>›</span>
-        <router-link to="/products" class="hover:text-accent transition-colors">Products</router-link>
-        <span>›</span>
-        <router-link
-          :to="{ name: 'products', query: { category: product.category } }"
-          class="hover:text-accent transition-colors capitalize"
+      <nav class="mb-6 sm:mb-8 lg:mb-12 text-xs font-body font-light tracking-[0.15em] uppercase text-txt-muted dark:text-txt-dark-muted flex items-center gap-2 overflow-x-auto">
+        <RouterLink to="/" class="hover:text-txt dark:hover:text-txt-dark-primary transition-colors">Home</RouterLink>
+        <span>/</span>
+        <RouterLink
+          :to="`/category/${product.category}`"
+          class="hover:text-txt dark:hover:text-txt-dark-primary transition-colors"
         >
-          {{ product.category }}
-        </router-link>
-        <span>›</span>
-        <span class="text-ink-primary dark:text-chalk-primary line-clamp-1">{{ product.title }}</span>
+          {{ product.category.replace(/-/g, ' ') }}
+        </RouterLink>
+        <span>/</span>
+        <span class="text-txt-secondary dark:text-txt-dark-secondary truncate">{{ product.title }}</span>
       </nav>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+      <div class="grid gap-8 sm:gap-10 lg:grid-cols-2 lg:gap-20">
         <!-- Left: Images -->
         <div class="space-y-4">
-          <div class="lg:sticky lg:top-20">
+          <div class="lg:sticky lg:top-24">
             <!-- Main image -->
-            <div class="relative aspect-square rounded-3xl overflow-hidden bg-light-elevated dark:bg-dark-elevated">
+            <div class="aspect-square overflow-hidden bg-surface-raised dark:bg-surface-dark-raised flex items-center justify-center">
               <img
                 :src="product.images[selectedImage] || product.thumbnail"
                 :alt="product.title"
-                class="w-full h-full object-cover transition-opacity duration-300"
+                class="w-full h-full object-contain transition-opacity duration-300"
               />
-              <!-- Discount badge -->
-              <span
-                v-if="product.discountPercentage > 0"
-                class="absolute top-4 left-4 bg-accent text-white text-sm font-mono font-medium px-3 py-1.5 rounded-full"
-              >
-                -{{ Math.round(product.discountPercentage) }}%
-              </span>
             </div>
 
             <!-- Thumbnail strip -->
-            <div v-if="product.images.length > 1" class="flex gap-3 mt-4">
+            <div v-if="product.images && product.images.length > 1" class="flex gap-3 sm:gap-4 mt-4 sm:mt-6 overflow-x-auto pb-4 -mx-1 px-1">
               <button
                 v-for="(img, i) in product.images"
                 :key="i"
-                class="w-16 h-16 md:w-20 md:h-20 rounded-2xl overflow-hidden border-2 transition-all duration-200"
-                :class="selectedImage === i ? 'border-accent shadow-accent' : 'border-transparent hover:border-light-border dark:hover:border-dark-border'"
+                class="w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 overflow-hidden transition-all duration-200 bg-transparent"
+                :class="selectedImage === i ? 'border-b-2 border-txt dark:border-txt-dark-primary' : 'border-b-2 border-transparent opacity-60 hover:opacity-100'"
                 @click="selectedImage = i"
               >
-                <img :src="img" :alt="`${product.title} image ${i + 1}`" class="w-full h-full object-cover" />
+                <img :src="img" :alt="`${product.title} image ${i + 1}`" class="w-full h-full object-contain" />
               </button>
             </div>
 
             <!-- Badges -->
-            <div class="flex flex-wrap gap-2 mt-4">
-              <Badge :label="product.availabilityStatus" :variant="stockVariant as 'default' | 'success' | 'warning' | 'danger'" />
-              <Badge :label="product.shippingInformation" />
+            <div class="flex flex-wrap gap-2 mt-4 sm:mt-6" v-if="product.availabilityStatus || product.shippingInformation">
+              <Badge v-if="product.availabilityStatus" :label="product.availabilityStatus" :variant="stockVariant as any" />
+              <Badge v-if="product.shippingInformation" :label="product.shippingInformation" />
             </div>
           </div>
         </div>
 
         <!-- Right: Details -->
-        <div class="space-y-6">
+        <div class="space-y-8 lg:pt-4">
           <!-- Title -->
-          <h1 class="font-display text-3xl md:text-4xl font-bold text-ink-primary dark:text-chalk-primary leading-tight">
+          <h1 class="font-display text-2xl sm:text-3xl md:text-4xl font-light text-txt dark:text-txt-dark-primary leading-tight tracking-tight">
             {{ product.title }}
           </h1>
 
@@ -171,71 +156,47 @@ onMounted(async () => {
           <StarRating :rating="product.rating" :count="product.reviews?.length" />
 
           <!-- Price -->
-          <div class="flex items-center gap-3">
-            <span class="font-mono font-bold text-3xl text-accent">
+          <div class="flex items-center gap-4">
+            <span class="font-body font-light text-3xl sm:text-4xl text-txt dark:text-txt-dark-primary">
               ${{ discountedPrice.toFixed(2) }}
             </span>
             <span
               v-if="product.discountPercentage > 0"
-              class="font-mono text-lg text-ink-muted dark:text-chalk-muted line-through"
+              class="font-body font-light text-xl text-txt-muted dark:text-txt-dark-muted line-through"
             >
               ${{ product.price.toFixed(2) }}
             </span>
-            <Badge
-              v-if="product.discountPercentage > 0"
-              :label="`Save $${(product.price - discountedPrice).toFixed(2)}`"
-              variant="success"
-            />
           </div>
 
           <!-- Description -->
-          <p class="text-ink-secondary dark:text-chalk-secondary leading-relaxed font-body">
+          <p class="text-txt-secondary dark:text-txt-dark-secondary leading-relaxed font-body font-light text-base sm:text-lg">
             {{ product.description }}
           </p>
 
           <!-- Tags -->
-          <div v-if="product.tags?.length" class="flex flex-wrap gap-2">
+          <div v-if="product.tags?.length" class="flex flex-wrap gap-3">
             <span
               v-for="tag in product.tags"
               :key="tag"
-              class="badge bg-light-elevated dark:bg-dark-elevated text-ink-secondary dark:text-chalk-secondary"
+              class="text-xs uppercase tracking-widest text-txt-muted dark:text-txt-dark-muted"
             >
-              #{{ tag }}
-            </span>
-          </div>
-
-          <!-- Stock indicator -->
-          <div class="flex items-center gap-2">
-            <div
-              class="w-2 h-2 rounded-full"
-              :class="{
-                'bg-emerald-500': product.stock > 50,
-                'bg-amber-500': product.stock > 10 && product.stock <= 50,
-                'bg-red-500': product.stock <= 10,
-              }"
-            />
-            <span class="text-sm font-body" :class="{
-              'text-emerald-600 dark:text-emerald-400': product.stock > 50,
-              'text-amber-600 dark:text-amber-400': product.stock > 10 && product.stock <= 50,
-              'text-red-600 dark:text-red-400': product.stock <= 10,
-            }">
-              {{ stockLabel }}
+              {{ tag }}
             </span>
           </div>
 
           <!-- Quantity selector -->
-          <div class="flex items-center gap-4">
-            <span class="text-sm font-body font-medium text-ink-primary dark:text-chalk-primary">Quantity</span>
-            <div class="flex items-center gap-2 bg-light-elevated dark:bg-dark-elevated rounded-2xl p-1">
+          <div class="flex items-center gap-4 sm:gap-6 pt-4 sm:pt-6">
+            <span class="text-xs font-body font-normal tracking-[0.2em] uppercase text-txt-muted dark:text-txt-dark-muted">Quantity</span>
+            <div class="flex items-center gap-4 border-b border-edge dark:border-edge-dark pb-1">
               <button
-                class="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-light-border dark:hover:bg-dark-border transition-colors font-bold"
+                class="w-8 h-8 flex items-center justify-center hover:text-txt-muted transition-colors font-light text-lg text-txt dark:text-txt-dark-primary"
                 @click="quantity = Math.max(1, quantity - 1)"
               >
                 −
               </button>
-              <span class="w-10 text-center font-mono font-semibold">{{ quantity }}</span>
+              <span class="w-8 text-center font-body font-light text-lg">{{ quantity }}</span>
               <button
-                class="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-light-border dark:hover:bg-dark-border transition-colors font-bold"
+                class="w-8 h-8 flex items-center justify-center hover:text-txt-muted transition-colors font-light text-lg text-txt dark:text-txt-dark-primary"
                 @click="quantity = Math.min(product.stock, quantity + 1)"
               >
                 +
@@ -245,83 +206,88 @@ onMounted(async () => {
 
           <!-- Add to Cart -->
           <button
-            class="w-full py-4 text-base flex items-center justify-center gap-2"
-            :class="inCart ? 'btn-secondary' : 'btn-primary'"
+            class="w-full py-4 sm:py-5 text-xs sm:text-sm uppercase tracking-[0.2em] flex items-center justify-center gap-3 transition-colors"
+            :class="inCart ? 'bg-transparent border border-txt text-txt hover:bg-surface-raised dark:hover:bg-surface-dark-raised' : 'bg-txt text-surface hover:bg-txt-secondary dark:bg-txt-dark-primary dark:text-surface-dark dark:hover:bg-txt-dark-secondary'"
             :disabled="product.stock === 0"
             @click="addToCart"
           >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-            </svg>
-            {{ inCart ? `In Cart — Add More` : `Add to Cart — $${(discountedPrice * quantity).toFixed(2)}` }}
+            <template v-if="inCart">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              In Cart — Add More
+            </template>
+            <template v-else>
+              Add to Cart
+            </template>
           </button>
 
           <!-- Divider -->
-          <hr class="border-light-border dark:border-dark-border" />
+          <hr class="border-edge dark:border-edge-dark my-4" />
 
           <!-- Product details grid -->
-          <div class="grid grid-cols-2 gap-4 text-sm">
+          <div class="grid grid-cols-2 gap-4 sm:gap-6 text-sm">
             <div v-if="product.brand">
-              <span class="text-ink-muted dark:text-chalk-muted font-body">Brand</span>
-              <p class="font-body font-medium text-ink-primary dark:text-chalk-primary mt-1">{{ product.brand }}</p>
+              <span class="text-xs tracking-[0.15em] uppercase text-txt-muted dark:text-txt-dark-muted font-body">Brand</span>
+              <p class="font-body font-light text-txt dark:text-txt-dark-primary mt-1.5">{{ product.brand }}</p>
             </div>
-            <div>
-              <span class="text-ink-muted dark:text-chalk-muted font-body">SKU</span>
-              <p class="font-mono text-ink-primary dark:text-chalk-primary mt-1">{{ product.sku }}</p>
+            <div v-if="product.sku">
+              <span class="text-xs tracking-[0.15em] uppercase text-txt-muted dark:text-txt-dark-muted font-body">SKU</span>
+              <p class="font-mono font-light text-txt dark:text-txt-dark-primary mt-1.5">{{ product.sku }}</p>
             </div>
-            <div>
-              <span class="text-ink-muted dark:text-chalk-muted font-body">Weight</span>
-              <p class="font-body font-medium text-ink-primary dark:text-chalk-primary mt-1">{{ product.weight }}g</p>
+            <div v-if="product.weight">
+              <span class="text-xs tracking-[0.15em] uppercase text-txt-muted dark:text-txt-dark-muted font-body">Weight</span>
+              <p class="font-body font-light text-txt dark:text-txt-dark-primary mt-1.5">{{ product.weight }}g</p>
             </div>
-            <div>
-              <span class="text-ink-muted dark:text-chalk-muted font-body">Dimensions</span>
-              <p class="font-body font-medium text-ink-primary dark:text-chalk-primary mt-1">
+            <div v-if="product.dimensions">
+              <span class="text-xs tracking-[0.15em] uppercase text-txt-muted dark:text-txt-dark-muted font-body">Dimensions</span>
+              <p class="font-body font-light text-txt dark:text-txt-dark-primary mt-1.5">
                 {{ product.dimensions.width }} × {{ product.dimensions.height }} × {{ product.dimensions.depth }} cm
               </p>
             </div>
-            <div>
-              <span class="text-ink-muted dark:text-chalk-muted font-body">Warranty</span>
-              <p class="font-body font-medium text-ink-primary dark:text-chalk-primary mt-1">{{ product.warrantyInformation }}</p>
+            <div v-if="product.warrantyInformation">
+              <span class="text-xs tracking-[0.15em] uppercase text-txt-muted dark:text-txt-dark-muted font-body">Warranty</span>
+              <p class="font-body font-light text-txt dark:text-txt-dark-primary mt-1.5">{{ product.warrantyInformation }}</p>
             </div>
-            <div>
-              <span class="text-ink-muted dark:text-chalk-muted font-body">Return Policy</span>
-              <p class="font-body font-medium text-ink-primary dark:text-chalk-primary mt-1">{{ product.returnPolicy }}</p>
+            <div v-if="product.returnPolicy">
+              <span class="text-xs tracking-[0.15em] uppercase text-txt-muted dark:text-txt-dark-muted font-body">Return Policy</span>
+              <p class="font-body font-light text-txt dark:text-txt-dark-primary mt-1.5">{{ product.returnPolicy }}</p>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Reviews Section -->
-      <section v-if="product.reviews?.length" class="mt-16">
-        <h2 class="section-title mb-8">Customer Reviews</h2>
+      <section v-if="product.reviews?.length" class="mt-20 border-t border-edge dark:border-edge-dark pt-20">
+        <h2 class="text-xs font-body font-normal tracking-[0.3em] uppercase text-txt-muted dark:text-txt-dark-muted mb-10">Customer Reviews</h2>
 
         <!-- Rating summary -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
-          <div class="flex flex-col items-center justify-center bg-light-surface dark:bg-dark-surface rounded-3xl p-8 shadow-card">
-            <span class="font-display text-5xl font-bold text-accent">{{ product.rating.toFixed(1) }}</span>
-            <StarRating :rating="product.rating" class="mt-2" />
-            <span class="text-sm text-ink-muted dark:text-chalk-muted mt-2 font-body">
-              Based on {{ product.reviews.length }} reviews
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-14">
+          <div class="flex flex-col items-center justify-center py-8">
+            <span class="font-display text-5xl font-light text-txt dark:text-txt-dark-primary">{{ product.rating.toFixed(1) }}</span>
+            <StarRating :rating="product.rating" class="mt-3" />
+            <span class="text-xs tracking-[0.15em] uppercase text-txt-muted dark:text-txt-dark-muted mt-3 font-body">
+              {{ product.reviews.length }} reviews
             </span>
           </div>
 
           <!-- Rating bars -->
-          <div class="md:col-span-2 space-y-2">
+          <div class="md:col-span-2 space-y-3 flex flex-col justify-center">
             <div
               v-for="(count, i) in ratingDistribution"
               :key="i"
               class="flex items-center gap-3"
             >
-              <span class="text-sm font-mono w-12 text-right text-ink-secondary dark:text-chalk-secondary">
+              <span class="text-xs font-body font-light w-12 text-right text-txt-secondary dark:text-txt-dark-secondary">
                 {{ 5 - i }}★
               </span>
-              <div class="flex-1 h-3 bg-light-elevated dark:bg-dark-elevated rounded-full overflow-hidden">
+              <div class="flex-1 h-[2px] bg-edge dark:bg-edge-dark overflow-hidden">
                 <div
-                  class="h-full bg-accent rounded-full transition-all duration-500"
+                  class="h-full bg-txt dark:bg-txt-dark-primary transition-all duration-500"
                   :style="{ width: `${product.reviews.length > 0 ? (count / product.reviews.length) * 100 : 0}%` }"
                 />
               </div>
-              <span class="text-sm font-mono w-8 text-ink-muted dark:text-chalk-muted">
+              <span class="text-xs font-body font-light w-8 text-txt-muted dark:text-txt-dark-muted">
                 {{ count }}
               </span>
             </div>
@@ -329,29 +295,29 @@ onMounted(async () => {
         </div>
 
         <!-- Review cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-0">
           <div
             v-for="(review, i) in product.reviews"
             :key="i"
-            class="bg-light-surface dark:bg-dark-surface rounded-3xl p-6 shadow-card"
+            class="border-t border-edge dark:border-edge-dark py-8 px-2"
           >
-            <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center justify-between mb-4">
               <div>
-                <span class="font-body font-semibold text-sm text-ink-primary dark:text-chalk-primary">
+                <span class="font-body font-light text-sm text-txt dark:text-txt-dark-primary">
                   {{ review.reviewerName }}
                 </span>
-                <span class="text-xs text-ink-muted dark:text-chalk-muted ml-2 font-body">
+                <span class="text-xs tracking-[0.1em] text-txt-muted dark:text-txt-dark-muted ml-3 font-body">
                   {{ new Date(review.date).toLocaleDateString() }}
                 </span>
               </div>
               <StarRating :rating="review.rating" />
             </div>
-            <p class="text-sm text-ink-secondary dark:text-chalk-secondary font-body leading-relaxed">
+            <p class="text-sm text-txt-secondary dark:text-txt-dark-secondary font-body font-light leading-relaxed">
               {{ review.comment }}
             </p>
           </div>
         </div>
       </section>
-    </template>
+    </div>
   </div>
 </template>

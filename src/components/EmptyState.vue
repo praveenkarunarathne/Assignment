@@ -13,10 +13,10 @@ const emit = defineEmits<{
 <template>
   <div class="flex flex-col items-center justify-center py-16 px-4 text-center">
     <div class="text-6xl mb-6">🛍️</div>
-    <h3 class="font-display text-2xl font-bold text-ink-primary dark:text-chalk-primary mb-2">
+    <h3 class="font-display text-2xl font-bold text-txt dark:text-txt-dark-primary mb-2">
       {{ title }}
     </h3>
-    <p class="text-ink-muted dark:text-chalk-muted text-sm max-w-sm mb-6">
+    <p class="text-txt-muted dark:text-txt-dark-muted text-sm max-w-sm mb-6">
       {{ description }}
     </p>
     <button

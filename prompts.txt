@@ -1,0 +1,53 @@
+The aim 01: Initial project setup with Vite and Vue 3
+Actual prompt: I want to create a new Vue 3 project using Vite and TypeScript. What is the exact command to scaffold this project, and what essential dependencies should I install for routing and state management?
+
+The aim 02: Configure Tailwind CSS for styling
+Actual prompt: How do I install and configure Tailwind CSS in my Vite + Vue 3 project? Please provide the tailwind.config.js setup, including custom fonts and a dark mode strategy using class.
+
+The aim 03: Generate TypeScript interfaces for e-commerce products
+Actual prompt: I am building a Vue 3 application using the DummyJSON products API. Can you generate the TypeScript interfaces for the Product, Review, and Dimensions objects returned by this API?
+
+The aim 04: Fetch data from an API with loading states
+Actual prompt: Write a Vue composition API script setup that fetches a list of products from `https://dummyjson.com/products`. It needs to handle a boolean `loading` state, string `error` state, and store the products in a reactive ref.
+
+The aim 05: Setup a Pinia store for global state management
+Actual prompt: Create a Pinia store in Vue 3 using the composition API setup function. The store should fetch and cache the products list so I don't have to refetch it on every page navigation.
+
+The aim 06: Create a Pinia store for cart management
+Actual prompt: Create another Pinia store to manage a shopping cart. It should allow users to add a product by ID, remove a product, update quantity, and calculate the total number of items in the cart.
+
+The aim 07: Persist the cart to LocalStorage
+Actual prompt: I want my cart Pinia store to persist its data across page reloads. How can I use the Vue `watch` function inside my store setup to automatically sync the cart state to `localStorage`?
+
+The aim 08: Design a sleek, responsive product card with Tailwind CSS
+Actual prompt: Generate a Vue component for a ProductCard. It should take a `product` prop. Use Tailwind CSS to style it with a minimalist, premium look (aspect ratio for the image, hover scale effect, and product details below). 
+
+The aim 09: Build a reusable Badge component for product status
+Actual prompt: I need a simple Vue 3 Badge component styled with Tailwind. It should accept a `label` prop and a `variant` prop ('default', 'success', 'warning', 'danger') to change the background and text colors based on stock levels.
+
+The aim 10: Create a 5-star rating component
+Actual prompt: Can you write a Vue 3 component that takes a `rating` number (e.g., 4.5) and displays 5 SVG stars using Tailwind CSS? The stars should partially fill up based on the decimal value of the rating.
+
+The aim 11: Build the main Product Details page
+Actual prompt: I need a ProductDetailView layout using Tailwind CSS grid. On desktop, the left column should be a sticky image gallery with thumbnails, and the right column should scroll with product details, price, add to cart button, and a grid of specs (brand, SKU, weight).
+
+The aim 12: Implement an interactive image gallery
+Actual prompt: For my product detail page, how can I implement a simple thumbnail strip below the main image? When a user clicks a thumbnail, it should change the `selectedImage` index and update the main image source.
+
+The aim 13: Add "Add to Cart" functionality to the Product Card
+Actual prompt: In my ProductCard component, I want to add an "Add to cart" button. When clicked, it should call the cart store to add the item, temporarily change the button text to "Added", and then revert back after 1.2 seconds.
+
+The aim 14: Debug Vue Router scrolling issue
+Actual prompt: In my Vue 3 router, when I switch between the 'home' and 'category' routes, the page jumps to the top. How can I use scrollBehavior in createRouter to prevent scrolling to the top only when navigating between these specific routes?
+
+The aim 15: Implement a basic Login View
+Actual prompt: Generate a minimal login form in Vue 3 using Tailwind. It just needs an email and password field, and a submit button. It doesn't need real authentication, just a mock delay and redirecting the user to the home page on success.
+
+The aim 16: Setup Route Guards for protected routes
+Actual prompt: How do I add a router guard (`beforeEach`) to my Vue Router so that any route with `meta: { requiresAuth: true }` redirects the user to the `/login` page if they are not authenticated?
+
+The aim 17: Resolve TypeScript "any" type linting errors
+Actual prompt: I have strict TypeScript enabled and I'm getting an error for using the 'any' type in two places: `(name: any) =>` in my router and `:variant="stockVariant as any"` in a Vue template. How can I replace these with proper strict types using `RouteRecordName` and union types?
+
+The aim 18: Add a Dark Mode toggle switch
+Actual prompt: Write a Vue component for a theme toggle button. It should check if the user has a preferred color scheme, toggle a 'dark' class on the HTML document element, and save the user's preference to `localStorage`.

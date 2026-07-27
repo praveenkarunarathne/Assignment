@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, type RouteRecordName } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import HomeView from '../views/HomeView.vue'
 
@@ -43,7 +43,7 @@ const router = createRouter({
     }
     
     // Prevent scrolling to the top of the hero section when the user is just filtering categories
-    const isHomeOrCategory = (name: any) => name === 'home' || name === 'category'
+    const isHomeOrCategory = (name: RouteRecordName | null | undefined) => name === 'home' || name === 'category'
     if (isHomeOrCategory(to.name) && isHomeOrCategory(from.name)) {
       // If we are just switching filters, don't jump to the top
       return false

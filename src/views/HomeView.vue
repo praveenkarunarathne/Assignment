@@ -5,7 +5,6 @@ import { useProductsStore } from '../stores/products'
 import ProductFilters from '../components/ProductFilters.vue'
 import ProductGrid from '../components/ProductGrid.vue'
 import ErrorState from '../components/ErrorState.vue'
-import type { FilterState } from '../types'
 
 const products = useProductsStore()
 const route = useRoute()

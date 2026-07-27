@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useProductsStore } from '../stores/products'
 import ProductCard from './ProductCard.vue'
-import SkeletonDetail from './SkeletonDetail.vue'
 
 const products = useProductsStore()
 </script>

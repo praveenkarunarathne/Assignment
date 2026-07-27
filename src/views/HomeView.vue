@@ -111,7 +111,7 @@ function clearFilters() {
       <!-- Right: Anchor Image -->
       <div class="relative w-full min-h-[50svh] md:min-h-0 md:h-full bg-neutral-100 dark:bg-[#111] overflow-hidden">
         <img 
-          src="https://images.pexels.com/photos/1926620/pexels-photo-1926620.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
+          src="https://images.pexels.com/photos/19934394/pexels-photo-19934394.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
           alt="Editorial Campaign" 
           class="absolute inset-0 w-full h-full object-cover object-center"
         />

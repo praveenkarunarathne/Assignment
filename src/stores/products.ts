@@ -76,8 +76,9 @@ export const useProductsStore = defineStore('products', () => {
 
       const productsData: PaginatedResponse<Product> = await productsRes.json()
       
-      // Curate for a luxury aesthetic by restricting to a specific niche (Apothecary / Beauty)
-      const allowedCategories = ['beauty', 'fragrances', 'skincare']
+    
+      // Curate for a luxury aesthetic by restricting to a specific niche (Menswear)
+      const allowedCategories = ['mens-shirts', 'mens-shoes', 'mens-watches']
       products.value = productsData.products.filter((p: Product) => 
         allowedCategories.includes(p.category)
       )

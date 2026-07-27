@@ -60,6 +60,14 @@ function discountedPrice(product: Product): string {
           ${{ product.price.toFixed(2) }}
         </span>
       </div>
+
+      <button
+        type="button"
+        @click.prevent="handleAdd"
+        class="mt-3 w-full py-2 text-sm font-sans border border-edge dark:border-edge-dark rounded transition-colors"
+      >
+        {{ added ? 'Added' : 'Add to cart' }}
+      </button>
     </div>
 
   </div>

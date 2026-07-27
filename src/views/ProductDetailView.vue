@@ -140,6 +140,7 @@ watch(() => route.params.id, loadProduct)
             <!-- Badges -->
             <div class="flex flex-wrap gap-2 mt-4 sm:mt-6" v-if="product.availabilityStatus || product.shippingInformation">
               <Badge v-if="product.availabilityStatus" :label="product.availabilityStatus" :variant="stockVariant as any" />
+              <span class="text-sm text-txt-muted dark:text-txt-dark-muted flex items-center">{{ stockLabel }}</span>
               <Badge v-if="product.shippingInformation" :label="product.shippingInformation" />
             </div>
           </div>

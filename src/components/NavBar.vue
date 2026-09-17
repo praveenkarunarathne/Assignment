@@ -20,7 +20,13 @@ function onSearch() {
 
 function toggleSearch() {
   searchOpen.value = !searchOpen.value
-  if (!searchOpen.value) {
+
+  if (searchOpen.value) {
+    document.getElementById('products-section')?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    })
+  } else {
     searchInput.value = ''
     products.setSearch('')
   }

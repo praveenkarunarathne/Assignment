@@ -118,7 +118,7 @@ function clearFilters() {
     </section>
 
     <!-- Products section -->
-    <section class="w-full px-4 sm:px-6 lg:px-8 py-12 md:py-20 lg:py-28 pb-24 md:pb-20 lg:pb-28">
+    <section id="products-section" class="scroll-mt-16 w-full px-4 sm:px-6 lg:px-8 py-12 md:py-20 lg:py-28 pb-24 md:pb-20 lg:pb-28">
       <div class="flex flex-col lg:flex-row gap-8 lg:gap-20">
         <!-- Sidebar (desktop only) -->
         <aside class="hidden lg:block w-56 flex-shrink-0">
